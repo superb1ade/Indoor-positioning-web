@@ -8,7 +8,6 @@ function App() {
 
   useEffect(() => {
 // Function to fetch data from Firestore
-// Function to fetch data from Firestore
 const fetchData = async () => {
   // Get a reference to the 'Anchor' and 'Tag' collections
   const anchorCollection = collection(db, 'Anchor');
@@ -16,18 +15,7 @@ const fetchData = async () => {
 
   // Fetch the documents in both collections
   const anchorData = await getDocs(anchorCollection);
-  const tagDocs = await getDocs(tagCollection);
-
-  // Fetch the documents in the 'Tag' collection
-  const tagData = await Promise.all(tagDocs.docs.map(async (doc) => {
-    const tagCoordinateCollection = collection(db, 'Tag', doc.id, 'Tag_coordinate');
-    const tagCoordinateData = await getDocs(tagCoordinateCollection);
-    
-    return tagCoordinateData.docs.map((doc) => ({
-      ...doc.data(),
-      id: doc.id,
-    }));
-  }));
+  const tagData = await getDocs(tagCollection);
 
   // Map over the documents and format them into an array of objects
   const formattedAnchorData = anchorData.docs.map((doc) => ({
@@ -35,8 +23,13 @@ const fetchData = async () => {
     id: doc.id, // Include the document ID
   }));
 
+  const formattedTagData = tagData.docs.map((doc) => ({
+    ...doc.data(), // Spread the data in the document
+    id: doc.id, // Include the document ID
+  }));
+
   // Combine the data from both collections and store it in state
-  setFilteredData([...formattedAnchorData, ...tagData.flat()]);
+  setFilteredData([...formattedAnchorData, ...formattedTagData]);
 };
 
 
